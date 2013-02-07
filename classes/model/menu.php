@@ -35,6 +35,7 @@ class Model_Menu extends \Orm\Model
 	protected static $_properties = array(
 		'id',
 		'menu',
+		'text',
 		'title',
 		'link',
 		'parent',
