@@ -31,26 +31,26 @@ The default configuration:
 ````
 <?php
 	protected static $_defaults = array(
-		'menu' => "<ul>{menu}</ul>\n",
+		'menu' => "<ul>{menu}</ul>",
 		'item' => "<li>{item}\n{submenu}</li>\n",
-		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+		'item_inner' => '<a href="{link}" title="{title}">{text}</a>',
 	);
 ?>
 ````
 
-When somthing is not found, this will be the fallbck configuration.
+When somthing is not found, this will be the fallback configuration.
 
 If you want to use different configuration for submenus, you can define different configuration by adding 'sub_' prefix to the specific config item, like this:
 
 ````
 <?php
 	protected static $_defaults = array(
-		'menu' => "<ul>{menu}</ul>\n",
+		'menu' => "<ul>{menu}</ul>",
 		'item' => "<li>{item}\n{submenu}</li>\n",
-		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
-		'sub_menu' => "<ul>{menu}</ul>\n",
+		'item_inner' => '<a href="{link}" title="{title}">{text}</a>',
+		'sub_menu' => "<ul>{menu}</ul>",
 		'sub_item' => "<li>{item}\n{submenu}</li>\n",
-		'sub_item_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+		'sub_item_inner' => '<a href="{link}" title="{title}">{text}</a>',
 	);
 ?>
 ````
@@ -60,26 +60,61 @@ You can also modify the parent in case it has children, using this configuration
 ````
 <?php
 	protected static $_defaults = array(
-		'menu' => "<ul>{menu}</ul>\n",
+		'menu' => "<ul>{menu}</ul>",
 		'item' => "<li>{item}\n{submenu}</li>\n",
-		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+		'item_inner' => '<a href="{link}" title="{title}">{text}</a>',
 		'item_sub' => "<li>{item}\n{submenu}</li>\n",
-		'item_inner_sub' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+		'item_inner_sub' => '<a href="{link}" title="{title}">{text}</a>',
 	);
 ?>
 ````
 
-Last, but not least: multi-level menu submenu configuration:
+And if the parent is a submenu:
 ````
 <?php
 	protected static $_defaults = array(
-		'menu' => "<ul>{menu}</ul>\n",
+		'menu' => "<ul>{menu}</ul>",
 		'item' => "<li>{item}\n{submenu}</li>\n",
-		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+		'item_inner' => '<a href="{link}" title="{title}">{text}</a>',
 		'sub_item_sub' => "<li>{item}\n{submenu}</li>\n",
-		'sub_item_inner_sub' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+		'sub_item_inner_sub' => '<a href="{link}" title="{title}">{text}</a>',
 	);
 ?>
+````
+
+Note: this will apply for every submenu which has children, when defined.
+
+Last, but not least: You can define your own field for every menu item.
+````
+<?php
+	protected static $_defaults = array(
+		'menu' => "<ul>{menu}</ul>",
+		'item' => "<li>{item}\n{submenu}</li>\n",
+		'item_inner' => '<a class="{class}" href="{link}" title="{title}">{text}</a>',
+	);
+?>
+````
+
+A menu item MUST have a menu name, text, a parent, a position, optional: title, link
+Anything else is stored in an EAV container.
+
+
+##New menu(item)
+````
+<?php
+	$menu = array(
+		'menu' => 'main',
+		'text' => '<strong>This</strong> is a text',
+		'title' => 'This is optional',
+		'link' => '/to/somewhere'
+	);
+
+	$menu = \Model_Menu::forge($menu);
+	$menu->attributes[] = \Model_Menu_Attribute::forge(array('key' => 'class', 'data' => 'myclass'));
+
+	$menu->save();
+?>
+
 ````
 
 ##Future plans
