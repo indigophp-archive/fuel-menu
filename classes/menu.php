@@ -30,7 +30,7 @@ class Menu
 	 */
 	protected static $_defaults = array(
 		'menu' => "<ul>{menu}</ul>",
-		'item' => "<li>{item}\n{submenu}</li>\n",
+		'item' => '<li>{item}\n{submenu}</li>\n',
 		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{text}</a>',
 	);
 
