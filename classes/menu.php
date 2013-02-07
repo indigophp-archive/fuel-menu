@@ -31,7 +31,7 @@ class Menu
 	protected static $_defaults = array(
 		'menu' => "<ul>{menu}</ul>",
 		'item' => "<li>{item}\n{submenu}</li>\n",
-		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{text}</a>',
 	);
 
 	/**
@@ -105,7 +105,7 @@ class Menu
 			$menu->children and $submenu = $this->build_menu($menu->children, true);
 			$suffix = $submenu ? '_sub' : '';
 
-			$inner = str_replace(array('{title}', '{link}', '{target}'), array($menu->title, $menu->link, $menu->target), \Arr::get($this->template, $prefix.'item_inner'.$suffix, $this->template['item_inner']));
+			$inner = str_replace(array('{title}', '{link}', '{target}', '{text}'), array(\Security::strip_tags($menu->title), $menu->link, $menu->target, $menu->title), \Arr::get($this->template, $prefix.'item_inner'.$suffix, $this->template['item_inner']));
 
 			$item = str_replace(array('{item}', '{submenu}'), array($inner, $submenu), \Arr::get($this->template, $prefix.'item'.$suffix, $this->template['item']));
 
