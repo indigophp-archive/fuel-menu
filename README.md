@@ -38,7 +38,9 @@ The default configuration:
 ?>
 ````
 
-If you want to use different configuration for submenus, you can define different configuration by adding 'sub' prefix to the specific config item, like this:
+When somthing is not found, this will be the fallbck configuration.
+
+If you want to use different configuration for submenus, you can define different configuration by adding 'sub_' prefix to the specific config item, like this:
 
 ````
 <?php
@@ -46,12 +48,39 @@ If you want to use different configuration for submenus, you can define differen
 		'menu' => "<ul>{menu}</ul>\n",
 		'item' => "<li>{item}\n{submenu}</li>\n",
 		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
-		'submenu' => "<ul>{menu}</ul>\n",
-		'subitem' => "<li>{item}\n{submenu}</li>\n",
-		'subitem_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+		'sub_menu' => "<ul>{menu}</ul>\n",
+		'sub_item' => "<li>{item}\n{submenu}</li>\n",
+		'sub_item_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+	);
+?>
+````
+
+You can also modify the parent in case it has children, using this configuration:
+
+````
+<?php
+	protected static $_defaults = array(
+		'menu' => "<ul>{menu}</ul>\n",
+		'item' => "<li>{item}\n{submenu}</li>\n",
+		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+		'item_sub' => "<li>{item}\n{submenu}</li>\n",
+		'item_inner_sub' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+	);
+?>
+````
+
+Last, but not least: multi-level menu submenu configuration:
+````
+<?php
+	protected static $_defaults = array(
+		'menu' => "<ul>{menu}</ul>\n",
+		'item' => "<li>{item}\n{submenu}</li>\n",
+		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
+		'sub_item_sub' => "<li>{item}\n{submenu}</li>\n",
+		'sub_item_inner_sub' => '<a href="{link}" title="{title}" target="{target}">{title}</a>',
 	);
 ?>
 ````
 
 ##Future plans
-I'm planning to add active menuitem option.
+I'm planning to add active menuitem option. I'm open to any ideas.

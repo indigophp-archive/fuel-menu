@@ -98,15 +98,16 @@ class Menu
 	private function build_menu(array $menus, $sub = false)
 	{
 		$html = '';
-		$sub and $sub = 'sub';
+		$prefix = $sub ? 'sub_' : '';
 
 		foreach ($menus as $menu) {
 			$submenu = null;
 			$menu->children and $submenu = $this->build_menu($menu->children, true);
+			$suffix = $submenu ? '_sub' : '';
 
-			$inner = str_replace(array('{title}', '{link}', '{target}'), array($menu->title, $menu->link, $menu->target), \Arr::get($this->template, $sub.'item_inner', $this->template['item_inner']));
+			$inner = str_replace(array('{title}', '{link}', '{target}'), array($menu->title, $menu->link, $menu->target), \Arr::get($this->template, $prefix.'item_inner'.$suffix, $this->template['item_inner']));
 
-			$item = str_replace(array('{item}', '{submenu}'), array($inner, $submenu), \Arr::get($this->template, $sub.'item', $this->template['item']));
+			$item = str_replace(array('{item}', '{submenu}'), array($inner, $submenu), \Arr::get($this->template, $prefix.'item'.$suffix, $this->template['item']));
 
 			$html .= $item;
 		}
