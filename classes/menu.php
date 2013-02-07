@@ -112,7 +112,7 @@ class Menu
 			$html .= $item;
 		}
 		
-		$html = str_replace('{menu}', $html, \Arr::get($this->template, $sub.'menu', $this->template['menu']));
+		$html = str_replace('{menu}', $html, \Arr::get($this->template, $prefix.'menu', $this->template['menu']));
 		
 		return $html;
 	}
