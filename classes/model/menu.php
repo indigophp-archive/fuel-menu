@@ -14,6 +14,18 @@ class Model_Menu extends \Orm\Model
 					array('position')
 				),
 			)
+		),
+		'attributes' => array(
+			'key_from' => 'id',
+			'model_to' => 'Model_Menu_Attribute',
+			'key_to' => 'menu_id',
+		)
+	);
+
+	protected static $_eav = array(
+		'attributes' => array(
+			'attribute' => 'key',
+			'value' => 'data'
 		)
 	);
 
@@ -35,11 +47,10 @@ class Model_Menu extends \Orm\Model
 	protected static $_properties = array(
 		'id',
 		'menu',
-		'text',
 		'title',
+		'text',
 		'link',
 		'parent',
 		'position',
-		'target',
 	);
 }

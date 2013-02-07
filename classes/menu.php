@@ -30,8 +30,8 @@ class Menu
 	 */
 	protected static $_defaults = array(
 		'menu' => "<ul>{menu}</ul>",
-		'item' => "<li>{item}\n{submenu}</li>\n",
-		'item_inner' => '<a href="{link}" title="{title}" target="{target}">{text}</a>',
+		'item' => "<li class=\"{class}\">{item}\n{submenu}</li>\n",
+		'item_inner' => '<a href="{link}" title="{title}">{text}</a>',
 	);
 
 	/**
@@ -105,9 +105,33 @@ class Menu
 			$menu->children and $submenu = $this->build_menu($menu->children, true);
 			$suffix = $submenu ? '_sub' : '';
 
-			$inner = str_replace(array('{title}', '{link}', '{target}', '{text}'), array($menu->title, $menu->link, $menu->target, $menu->text), \Arr::get($this->template, $prefix.'item_inner'.$suffix, $this->template['item_inner']));
+			$inner = str_replace(array('{link}', '{text}', '{title}'), array($menu->link, $menu->text, $menu->title), \Arr::get($this->template, $prefix.'item_inner'.$suffix, $this->template['item_inner']));
 
-			$item = str_replace(array('{item}', '{submenu}'), array($inner, $submenu), \Arr::get($this->template, $prefix.'item'.$suffix, $this->template['item']));
+			$item = str_replace('{item}', $inner, \Arr::get($this->template, $prefix.'item'.$suffix, $this->template['item']));
+
+			if (preg_match_all('#\{(.*?)\}#', $item, $match))
+			{
+				foreach ($match[1] as $key => $value)
+				{
+					try
+					{
+						$match[1][$key] = $menu->$value;
+					}
+					catch (\OutOfBoundsException $e)
+					{
+						$match[1][$key] = null;
+					}
+
+					if ($value == 'submenu')
+					{
+						unset($match[0][$key]);
+						unset($match[1][$key]);
+					}
+				}
+			}
+
+			$item = str_replace($match[0], $match[1], $item);
+			$item = str_replace('{submenu}', $submenu, $item);
 
 			$html .= $item;
 		}

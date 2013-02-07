@@ -14,8 +14,8 @@ return array(
 	'template' => array(
 		'default' => array(
 			'menu' => "<ul>{menu}</ul>",
-			'item' => "<li>{item}\n{submenu}</li>\n",
-			'item_inner' => '<a href="{link}" title="{title}" target="{target}">{text}</a>',
+			'item' => "<li class=\"{class}\">{item}\n{submenu}</li>\n",
+			'item_inner' => '<a href="{link}" title="{title}">{text}</a>',
 		)
 	)
 
