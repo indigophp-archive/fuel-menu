@@ -1,5 +1,6 @@
 Fuel Menu package
 =========
+(new version is coming)
 
 Menu package for FuelPHP framework.
 
