@@ -1,11 +1,10 @@
 Fuel Menu package
 =========
-(new version is coming :D)
 
 Menu package for FuelPHP framework.
 
 ##Install
-* Through OIL: ````oil install````
+* Through OIL: ````oil package install````
 * [Download](https://github.com/sagikazarmark/fuel-menu/archive/master.zip) package
 * Clone repo
 

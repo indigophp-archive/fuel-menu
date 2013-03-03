@@ -13,8 +13,7 @@ class Create_menus
 			'text' => array('type' => 'text'),
 			'link' => array('type' => 'text'),
 			'parent' => array('constraint' => 11, 'type' => 'int'),
-			'position' => array('constraint' => 11, 'type' => 'int'),
-
+			'position' => array('constraint' => 11, 'type' => 'int')
 		), array('id'), false, 'InnoDB', 'utf8_unicode_ci');
 
 		\DBUtil::create_table('menu_attributes', array(

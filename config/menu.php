@@ -6,25 +6,22 @@ return array(
 	/**
 	 * Default setup values
 	 */
-	'defaults' => array(
-		/**
-		 * Default template
-		 */
-		'default' => array(
-			'template' => 'default',
-			'driver' => 'db'
-		),
+	'default_setup' => 'default',
 
-		/**
-		 * Templates
-		 */
-		'template' => array(
-			'default' => array(
-				'menu' => "<ul>{menu}</ul>",
-				'item' => "<li class=\"{class}\">{item}\n{submenu}</li>\n",
-				'item_inner' => '<a href="{link}" title="{title}">{text}</a>',
-			)
+	'setups' => array(
+		'default' => array(
+			'driver'   => 'db',
+			'template' => 'default'
+		)
+	),
+	/**
+	 * Templates
+	 */
+	'templates' => array(
+		'default' => array(
+			'menu'       => "<ul>{menu}</ul>",
+			'item'       => "<li class=\"{class}\">{item}\n{submenu}</li>\n",
+			'item_inner' => '<a href="{link}" title="{title}">{text}</a>',
 		)
 	)
-
 );

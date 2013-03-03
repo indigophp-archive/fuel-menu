@@ -5,8 +5,7 @@
  * @package    Fuel
  * @subpackage Menu
  * @version    1.0
- * @author     Márk Ság-Kazár
- * @license    MIT License
+ * @author     Márk Ság-Kazár <sagikazarmark@gmail.com>
  * @link       https://github.com/sagikazarmark/fuel-menu
  */
 
@@ -29,29 +28,46 @@ class Menu
 	 * Driver config defaults.
 	 */
 	protected static $_defaults = array(
-		'menu' => "<ul>{menu}</ul>",
-		'item' => "<li class=\"{class}\">{item}\n{submenu}</li>\n",
+		'driver'   => 'db',
+		'template' => 'default'
+	);
+
+	/**
+	 * Default template
+	 * @var array
+	 */
+	protected static $_default_template = array(
+		'menu'       => "<ul>{menu}</ul>",
+		'item'       => "<li class=\"{class}\">{item}\n{submenu}</li>\n",
 		'item_inner' => '<a href="{link}" title="{title}">{text}</a>',
 	);
 
 	/**
 	 * Menu driver forge.
 	 *
-	 * @param	string|array	$template		template key for array defined in menu.template config or config array
+	 * @param	string|array	$setup		setup key for array defined in menu.setups config or config array
 	 * @param	array			$config		extra config array
 	 * @return  Menu    instance with the 
 	 */
-	public static function forge($template = null, array $config = array())
+	public static function forge($setup = null, array $config = array())
 	{
-		$instance_name = is_string($template) ? $template : 'default';
+		empty($setup) and $setup = \Config::get('menu.default_setup', 'default');
+		is_string($setup) and $setup = \Config::get('menu.setups.'.$setup, array());
 
-		empty($template) and $template = \Config::get('menu.template.default', static::$_defaults);
-		is_string($template) and $template = \Config::get('menu.template.'.$template, static::$_defaults);
+		$setup = \Arr::merge(static::$_defaults, $setup);
+		$config = \Arr::merge($setup, $config);
 
-		$template = \Arr::merge(static::$_defaults, $template);
-		$config = \Arr::merge($template, $config);
+		$template = \Config::get('menu.templates.' . \Arr::get($config, 'template'), array());
+		$template = \Arr::merge(static::$_default_template, $template);
 
-		static::$_instances[$instance_name] = new static($config);
+		$driver = '\\Menu_Driver_'.ucfirst(strtolower(\Arr::get($config, 'driver', 'db')));
+
+		if( ! class_exists($driver, true))
+		{
+			throw new \FuelException('Could not find Menu driver: ' . \Arr::get($config, 'driver', 'null') . ' ('.$driver . ')');
+		}
+
+		static::$_instances[$setup] = new $driver($config);
 
 		return static::$_instances[$instance_name];
 	}
@@ -80,11 +96,6 @@ class Menu
 		}
 
 		return static::$_instance;
-	}
-
-	protected function __construct(array $config = array())
-	{
-		$this->template = $config;
 	}
 
 	public function build($name)
