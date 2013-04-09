@@ -14,4 +14,11 @@ namespace Menu;
 class Menu_Driver_Db extends Menu_Driver
 {
 
+
+	protected function load($menu = null)
+	{
+		$this->items = Model_Menu::query()->where();
+		\Lang::get('menu.item.1', array('valami' => 'asdasda'));
+		__('menu', 'title', 1);
+	}
 }

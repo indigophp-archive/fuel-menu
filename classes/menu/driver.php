@@ -26,6 +26,12 @@ class Menu_Driver
 	protected $menu = null;
 
 	/**
+	 * Menu items
+	 * @var array
+	 */
+	protected $items = array();
+
+	/**
 	 * Driver constructor
 	 *
 	 * @param	array	$config		driver config
@@ -46,11 +52,13 @@ class Menu_Driver
 
 	/**
 	 * Set the active menu
-	 * @param string|null $menu Set this to null to remove menu
+	 * @param 	string|null 	$menu 	Set this to null to remove menu
+	 * @return 	$this
 	 */
 	public function set_menu($menu = null)
 	{
 		$this->menu = $menu;
+		$this->load($menu);
 		return $this;
 	}
 
@@ -78,4 +86,11 @@ class Menu_Driver
 
 		return $this;
 	}
+
+	/**
+	 * Load the menu data from source
+	 * @param  string $menu Name of the menu
+	 * @return $this
+	 */
+	public abstract function load($menu = null);
 }

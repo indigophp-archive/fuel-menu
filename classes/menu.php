@@ -45,11 +45,12 @@ class Menu
 	/**
 	 * Menu driver forge.
 	 *
-	 * @param	string|array	$setup		setup key for array defined in menu.setups config or config array
-	 * @param	array			$config		extra config array
-	 * @return  Menu    instance with the 
+	 * @param 	string 			$menu 		The name of the menu
+	 * @param	string|array	$setup		Setup key for array defined in menu.setups config or config array
+	 * @param	array			$config		Extra config array
+	 * @return  Menu instance
 	 */
-	public static function forge($setup = null, array $config = array())
+	public static function forge($menu, $setup = null, array $config = array())
 	{
 		empty($setup) and $setup = \Config::get('menu.default_setup', 'default');
 		is_string($setup) and $setup = \Config::get('menu.setups.'.$setup, array());
@@ -67,32 +68,31 @@ class Menu
 			throw new \FuelException('Could not find Menu driver: ' . \Arr::get($config, 'driver', 'null') . ' ('.$driver . ')');
 		}
 
-		static::$_instances[$setup] = new $driver($config);
+		static::$driver = new $driver($config);
+		$driver->set_menu($menu);
 
-		return static::$_instances[$instance_name];
+		static::$_instances[$menu] = $driver;
+
+		return $driver;
 	}
 
 	/**
 	 * Return a specific instance, or the default instance (is created if necessary)
 	 *
-	 * @param   string  driver id
-	 * @return  Menu
+	 * @param   string  $menu	Menu name
+	 * @param 	string 	$setup 	Setup name
+	 * @param 	array 	$config Configuration array
+	 * @return  Menu instance
 	 */
-	public static function instance($instance = null)
+	public static function instance($menu, $setup = null, array $config = array())
 	{
-		if ($instance !== null)
+		if (array_key_exists($menu, static::$_instances))
 		{
-			if ( ! array_key_exists($instance, static::$_instances))
-			{
-				return false;
-			}
-
-			return static::$_instances[$instance];
+			static::$_instance = static::$_instances[$menu];
 		}
-
-		if (static::$_instance === null)
+		else
 		{
-			static::$_instance = static::forge();
+			static::$_instance = static::forge($menu, $setup, $config);
 		}
 
 		return static::$_instance;
