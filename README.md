@@ -3,7 +3,7 @@ Fuel Menu package
 
 Menu package for FuelPHP framework.
 
-##Install
+## Install
 * Through OIL: ````oil package install````
 * [Download](https://github.com/sagikazarmark/fuel-menu/archive/master.zip) package
 * Clone repo
@@ -11,7 +11,7 @@ Menu package for FuelPHP framework.
 Run migration:
 ````oil refine migrate --packages=menu````
 
-##Usage
+## Usage
 ````
 <?php
 	\Package::load('menu'); //or add it to always_load
@@ -24,7 +24,7 @@ Run migration:
 ?>
 ````
 
-##Configuration
+## Configuration
 
 The default configuration:
 
@@ -99,7 +99,7 @@ A menu item MUST have a menu name, text, a parent, a position, optional: title, 
 Anything else is stored in an EAV container.
 
 
-##New menu(item)
+## New menu(item)
 ````
 <?php
 	$menu = array(
@@ -117,5 +117,5 @@ Anything else is stored in an EAV container.
 
 ````
 
-##Future plans
+## Future plans
 I'm planning to add active menuitem option. I'm open to any ideas.
