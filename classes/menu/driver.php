@@ -11,14 +11,8 @@
 
 namespace Menu;
 
-class Menu_Driver
+abstract class Menu_Driver
 {
-	/**
-	 * Driver config
-	 * @var array
-	 */
-	protected $config = array();
-
 	/**
 	 * Menu name
 	 * @var string
@@ -34,11 +28,11 @@ class Menu_Driver
 	/**
 	 * Driver constructor
 	 *
-	 * @param	array	$config		driver config
+	 * @param	string	$menu		menu name
 	 */
-	public function __construct(array $config)
+	public function __construct($menu)
 	{
-		$this->config = $config;
+		$this->menu = $menu;
 	}
 
 	/**
@@ -62,29 +56,11 @@ class Menu_Driver
 		return $this;
 	}
 
-	/**
-	 * Get a driver config setting.
-	 *
-	 * @param	string		$key		the config key
-	 * @return	mixed					the config setting value
-	 */
-	public function get_config($key, $default = null)
+	public function add_items(array $items)
 	{
-		return \Arr::get($this->config, $key, $default);
-	}
-
-	/**
-	 * Set a driver config setting.
-	 *
-	 * @param	string		$key		the config key
-	 * @param	mixed		$value		the new config value
-	 * @return	object					$this
-	 */
-	public function set_config($key, $value)
-	{
-		\Arr::set($this->config, $key, $value);
-
-		return $this;
+		foreach ($items as $id => $item) {
+			$this->add_item($item, $id);
+		}
 	}
 
 	/**
@@ -92,5 +68,19 @@ class Menu_Driver
 	 * @param  string $menu Name of the menu
 	 * @return $this
 	 */
-	public abstract function load($menu = null);
+	abstract public function load($menu = null);
+
+	/**
+	 * Add one menu item
+	 * @param array $item Menu item
+	 * @return $this
+	 */
+	abstract public function add_item(array $item, $id = null);
+
+	/**
+	 * Merge menu structure to the existing menu
+	 * @param  array  $items Menu structure that fits into the existing structure
+	 * @return $this
+	 */
+	abstract public function merge_items(array $items);
 }
