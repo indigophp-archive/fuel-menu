@@ -11,6 +11,8 @@
 
 namespace Menu;
 
+class MenuException extends \FuelException {}
+
 class Menu
 {
 
@@ -30,16 +32,6 @@ class Menu
 	protected static $_defaults = array(
 		'driver'   => 'db',
 		'template' => 'default'
-	);
-
-	/**
-	 * Default template
-	 * @var array
-	 */
-	protected static $_default_template = array(
-		'menu'       => "<ul>{menu}</ul>",
-		'item'       => "<li class=\"{class}\">{item}\n{submenu}</li>\n",
-		'item_inner' => '<a href="{link}" title="{title}">{text}</a>',
 	);
 
 	/**
