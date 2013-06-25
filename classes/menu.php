@@ -26,6 +26,14 @@ class Menu
 	 */
 	protected static $_instances = array();
 
+	protected $_defaults = array(
+		'cache' => array(
+			'enabled' => true,
+			'prefix' => 'menu',
+			'expire' => 3600
+		)
+	);
+
 	/**
 	 * Menu driver forge.
 	 *
@@ -34,18 +42,24 @@ class Menu
 	 * @param	array			$config		Extra config array
 	 * @return  Menu instance
 	 */
-	public static function forge($menu = 'default', $driver = 'static')
+	public static function forge($menu = 'default', $driver = 'static', array $config = array())
 	{
 		$driver = '\\Menu\\Menu_'.ucfirst(strtolower($driver));
 
 		if( ! class_exists($driver, true))
 		{
-			throw new \FuelException('Could not find Menu driver: ' $driver);
+			throw new \FuelException('Could not find Menu driver: ' . $driver);
 		}
 
-		$driver = new $driver($menu);
+		\Config::load('menu');
+
+		$config = \Arr::merge($this->_defaults, \Config::get('menu.' . $driver), $config);
+
+		$driver = new $driver($menu, $config);
 
 		static::$_instances[$menu] = $driver;
+
+		\Event::register('shutdown', array($driver, 'save'));
 
 		return $driver;
 	}
@@ -74,5 +88,17 @@ class Menu
 		}
 
 		return static::$_instance;
+	}
+
+	public static function flush($menu = null)
+	{
+		if (! is_null($menu))
+		{
+			return \Cache::delete('menu.' . $menu);
+		}
+		else
+		{
+			return \Cache::delete_all();
+		}
 	}
 }

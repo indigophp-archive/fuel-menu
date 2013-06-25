@@ -26,13 +26,46 @@ abstract class Menu_Driver
 	protected $items = array();
 
 	/**
+	 * Original items
+	 * @var array
+	 */
+	protected $_original = array();
+
+
+	/**
 	 * Driver constructor
 	 *
 	 * @param	string	$menu		menu name
 	 */
-	public function __construct($menu)
+	public function __construct($menu, $config)
 	{
-		$this->menu = $menu;
+		$this->config = $config;
+		$this->set_menu($menu);
+	}
+
+	/**
+	* Get a driver config setting.
+	*
+	* @param string $key the config key
+	* @return mixed the config setting value
+	*/
+	public function get_config($key, $default = null)
+	{
+		return \Arr::get($this->config, $key, $default);
+	}
+
+	/**
+	* Set a driver config setting.
+	*
+	* @param string $key the config key
+	* @param mixed $value the new config value
+	* @return object $this for chaining
+	*/
+	public function set_config($key, $value)
+	{
+		\Arr::set($this->config, $key, $value);
+
+		return $this;
 	}
 
 	/**
@@ -52,7 +85,7 @@ abstract class Menu_Driver
 	public function set_menu($menu = null)
 	{
 		$this->menu = $menu;
-		$this->load($menu);
+		$this->load();
 		return $this;
 	}
 
@@ -63,12 +96,34 @@ abstract class Menu_Driver
 		}
 	}
 
+	public function delete_items()
+	{
+		$this->items = array();
+	}
+
+	protected function load_cache()
+	{
+		if ($this->get_config('cache.enabled', false) === true)
+		{
+			return $this->items = \Cache::get($this->get_config('cache.prefix', 'menu') . '.' . $this->menu);
+		}
+		else
+		{
+			throw new \CacheNotFoundException("Caching is disabled", 1);
+		}
+	}
+
+	public function flush()
+	{
+		return \Cache::delete('menu.' . $this->menu);
+	}
+
 	/**
 	 * Load the menu data from source
 	 * @param  string $menu Name of the menu
 	 * @return $this
 	 */
-	abstract public function load($menu = null);
+	abstract public function load();
 
 	/**
 	 * Add one menu item
@@ -78,9 +133,22 @@ abstract class Menu_Driver
 	abstract public function add_item(array $item, $id = null);
 
 	/**
+	 * Delete one item
+	 * @param  mixed $id    Item identifier
+	 * @return [type]       [description]
+	 */
+	abstract public function delete_item($id);
+
+	/**
 	 * Merge menu structure to the existing menu
 	 * @param  array  $items Menu structure that fits into the existing structure
 	 * @return $this
 	 */
 	abstract public function merge_items(array $items);
+
+	/**
+	 * Save the items either to cache/file/db
+	 * @return bool
+	 */
+	abstract public function save();
 }

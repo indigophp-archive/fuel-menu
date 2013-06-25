@@ -18,6 +18,7 @@ Autoloader::add_classes(array(
 	'Menu\\MenuException'        => __DIR__.'/classes/menu.php',
 	'Menu\\Menu_Driver'          => __DIR__.'/classes/menu/driver.php',
 	'Menu\\Menu_Driver_Db'       => __DIR__.'/classes/menu/driver/db.php',
+	'Menu\\Menu_Static'          => __DIR__.'/classes/menu/static.php',
 
 	'Menu\\Model_Menu'           => __DIR__.'/classes/model/menu.php',
 	'Menu\\Model_Menu_Attribute' => __DIR__.'/classes/model/menu/attribute.php',
