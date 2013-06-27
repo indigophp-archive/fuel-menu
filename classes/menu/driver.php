@@ -49,7 +49,7 @@ abstract class Menu_Driver
 	* @param string $key the config key
 	* @return mixed the config setting value
 	*/
-	public function get_config($key, $default = null)
+	final public function get_config($key, $default = null)
 	{
 		return \Arr::get($this->config, $key, $default);
 	}
@@ -61,7 +61,7 @@ abstract class Menu_Driver
 	* @param mixed $value the new config value
 	* @return object $this for chaining
 	*/
-	public function set_config($key, $value)
+	final public function set_config($key, $value)
 	{
 		\Arr::set($this->config, $key, $value);
 
@@ -113,6 +113,11 @@ abstract class Menu_Driver
 		}
 	}
 
+	final public function render()
+	{
+		$this->_render();
+	}
+
 	public function flush()
 	{
 		return \Cache::delete('menu.' . $this->menu);
@@ -145,6 +150,12 @@ abstract class Menu_Driver
 	 * @return $this
 	 */
 	abstract public function merge_items(array $items);
+
+	/**
+	 * Driver's render function
+	 * @return mixed   Return the items
+	 */
+	abstract protected function _render();
 
 	/**
 	 * Save the items either to cache/file/db
