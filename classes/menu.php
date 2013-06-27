@@ -26,7 +26,7 @@ class Menu
 	 */
 	protected static $_instances = array();
 
-	protected $_defaults = array(
+	protected static $_defaults = array(
 		'cache' => array(
 			'enabled' => true,
 			'prefix' => 'menu',
@@ -53,7 +53,7 @@ class Menu
 
 		\Config::load('menu');
 
-		$config = \Arr::merge($this->_defaults, \Config::get('menu.' . $driver), $config);
+		$config = \Arr::merge(static::$_defaults, \Config::get('menu.' . $driver, array()), $config);
 
 		$driver = new $driver($menu, $config);
 
