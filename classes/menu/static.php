@@ -39,4 +39,9 @@ class Menu_Static extends Menu_Driver
 		}
 		return true;
 	}
+
+	public function _render()
+	{
+		# code...
+	}
 }
