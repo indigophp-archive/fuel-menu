@@ -26,13 +26,7 @@ class Menu
 	 */
 	protected static $_instances = array();
 
-	protected static $_defaults = array(
-		'cache' => array(
-			'enabled' => true,
-			'prefix' => 'menu',
-			'expire' => 3600
-		)
-	);
+	protected static $_defaults = array();
 
 	/**
 	 * Menu driver forge.
