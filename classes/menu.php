@@ -17,27 +17,50 @@ class Menu
 {
 
 	/**
-	 * loaded instance
+	 * Loaded instance
+	 * @var Menu|null
 	 */
 	protected static $_instance = null;
 
 	/**
-	 * array of loaded instances
+	 * Array of loaded instances
+	 * @var array
 	 */
 	protected static $_instances = array();
 
+	/**
+	 * Default config
+	 * @var array
+	 */
 	protected static $_defaults = array();
+
+	/**
+	 * Init
+	 */
+	public static function _init()
+	{
+		\Config::load('menu', true);
+		static::$_defaults = \Config::get('menu.defaults');
+	}
 
 	/**
 	 * Menu driver forge.
 	 *
 	 * @param 	string 			$menu 		The name of the menu
-	 * @param	string|array	$setup		Setup key for array defined in menu.setups config or config array
-	 * @param	array			$config		Extra config array
+	 * @param	string|array	$driver		Driver name or config array
+	 * @param	array			$config		Config array
 	 * @return  Menu instance
 	 */
 	public static function forge($menu = 'default', $driver = 'static', array $config = array())
 	{
+		if ( ! empty($driver) and ! is_array($driver))
+		{
+			$config = $driver;
+			$driver = \Config::get('menu.default_driver', 'static');
+		}
+
+		$config = \Arr::merge(static::$_defaults, \Config::get('menu.drivers.' . $driver, array()), $config);
+
 		$driver = '\\Menu\\Menu_'.ucfirst(strtolower($driver));
 
 		if( ! class_exists($driver, true))
@@ -45,21 +68,15 @@ class Menu
 			throw new \FuelException('Could not find Menu driver: ' . $driver);
 		}
 
-		\Config::load('menu');
-
-		$config = \Arr::merge(static::$_defaults, \Config::get('menu.' . $driver, array()), $config);
-
 		$driver = new $driver($menu, $config);
 
 		static::$_instances[$menu] = $driver;
-
-		\Event::register('shutdown', array($driver, 'save'));
 
 		return $driver;
 	}
 
 	/**
-	 * Return a specific driver, or the default instance (is created if necessary)
+	 * Return a specific menu, or the default instance (is created if necessary)
 	 *
 	 * @param   string  driver id
 	 * @return  Menu_Driver
@@ -86,7 +103,7 @@ class Menu
 
 	public static function flush($menu = null)
 	{
-		if (! is_null($menu))
+		if ( ! is_null($menu))
 		{
 			return \Cache::delete('menu.' . $menu);
 		}

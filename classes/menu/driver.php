@@ -35,7 +35,8 @@ abstract class Menu_Driver
 	/**
 	 * Driver constructor
 	 *
-	 * @param	string	$menu		menu name
+	 * @param string	$menu		menu name
+	 * @param array 	$config 	Config array
 	 */
 	public function __construct($menu, $config)
 	{
@@ -47,9 +48,10 @@ abstract class Menu_Driver
 	* Get a driver config setting.
 	*
 	* @param string $key the config key
+	* @param mixed  $default the default value
 	* @return mixed the config setting value
 	*/
-	final public function get_config($key, $default = null)
+	public function get_config($key, $default = null)
 	{
 		return \Arr::get($this->config, $key, $default);
 	}
@@ -61,7 +63,7 @@ abstract class Menu_Driver
 	* @param mixed $value the new config value
 	* @return object $this for chaining
 	*/
-	final public function set_config($key, $value)
+	public function set_config($key, $value)
 	{
 		\Arr::set($this->config, $key, $value);
 
@@ -70,6 +72,7 @@ abstract class Menu_Driver
 
 	/**
 	 * Get the active menu
+	 *
 	 * @return string
 	 */
 	public function get_menu()
@@ -79,6 +82,7 @@ abstract class Menu_Driver
 
 	/**
 	 * Set the active menu
+	 *
 	 * @param 	string|null 	$menu 	Set this to null to remove menu
 	 * @return 	$this
 	 */
