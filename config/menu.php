@@ -8,7 +8,8 @@ return array(
 			'prefix'     => 'menu',
 			'expiration' => 3600,
 			'driver'     => 'file',
-		)
+		),
+		'raw' => false
 	),
 
 	'default_driver' => 'default',

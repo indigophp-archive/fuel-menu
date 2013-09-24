@@ -100,35 +100,30 @@ abstract class Menu_Driver
 		}
 	}
 
-	public function delete_items()
-	{
-		$this->items = array();
-	}
-
 	protected function load_cache()
 	{
 		if ($this->get_config('cache.enabled', false) === true)
 		{
-			return $this->items = \Cache::get($this->get_config('cache.prefix', 'menu') . '.' . $this->menu);
+			try
+			{
+				return $this->items = \Cache::get($this->get_config('cache.prefix', 'menu') . '.' . $this->menu);
+			}
+			catch (\CacheNotFoundException $e)
+			{
+				return false;
+			}
 		}
-		else
-		{
-			throw new \CacheNotFoundException("Caching is disabled", 1);
-		}
-	}
-
-	final public function render()
-	{
-		$this->_render();
+		return null;
 	}
 
 	public function flush()
 	{
-		return \Cache::delete('menu.' . $this->menu);
+		return \Cache::delete($this->get_config('cache.prefix', 'menu') . '.' . $this->menu);
 	}
 
 	/**
 	 * Load the menu data from source
+	 *
 	 * @param  string $menu Name of the menu
 	 * @return $this
 	 */
@@ -136,20 +131,23 @@ abstract class Menu_Driver
 
 	/**
 	 * Add one menu item
-	 * @param array $item Menu item
+	 *
+	 * @param  array $item Menu item
 	 * @return $this
 	 */
 	abstract public function add_item(array $item, $id = null);
 
 	/**
 	 * Delete one item
-	 * @param  mixed $id    Item identifier
-	 * @return [type]       [description]
+	 *
+	 * @param  mixed 	$id    Item identifier
+	 * @return boolean
 	 */
 	abstract public function delete_item($id);
 
 	/**
 	 * Merge menu structure to the existing menu
+	 *
 	 * @param  array  $items Menu structure that fits into the existing structure
 	 * @return $this
 	 */
@@ -157,13 +155,15 @@ abstract class Menu_Driver
 
 	/**
 	 * Driver's render function
+	 *
 	 * @return mixed   Return the items
 	 */
-	abstract protected function _render();
+	abstract public function render();
 
 	/**
-	 * Save the items either to cache/file/db
-	 * @return bool
+	 * Save the items
+	 *
+	 * @return boolean
 	 */
 	abstract public function save();
 }

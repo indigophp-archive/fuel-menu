@@ -4,9 +4,15 @@ namespace Menu;
 
 class Model_Menu extends \Orm\Model_Nestedset
 {
-	protected static $_eav = array('meta');
+	protected static $_eav = array(
+		'meta' => array('attribute' => 'key',)
+	);
 
-	protected static $_has_many = array('meta');
+	protected static $_has_many = array(
+		'meta' => array(
+			'model_to' => 'Model_Menu_Meta'
+		)
+	);
 
 	protected static $_properties = array(
 		'id',
@@ -15,5 +21,12 @@ class Model_Menu extends \Orm\Model_Nestedset
 		'tree_id',
 		'name',
 		'url',
+	);
+
+	protected static $_table_name = 'menu';
+
+	protected static $_tree = array(
+		'tree_field'     => 'tree_id',
+		'title_field'    => 'name',
 	);
 }
