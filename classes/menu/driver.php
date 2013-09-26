@@ -26,13 +26,6 @@ abstract class Menu_Driver
 	protected $items = array();
 
 	/**
-	 * Original items
-	 * @var array
-	 */
-	protected $_original = array();
-
-
-	/**
 	 * Driver constructor
 	 *
 	 * @param string	$menu		menu name
@@ -47,9 +40,9 @@ abstract class Menu_Driver
 	/**
 	* Get a driver config setting.
 	*
-	* @param string $key the config key
-	* @param mixed  $default the default value
-	* @return mixed the config setting value
+	* @param	string	$key		the config key
+	* @param	mixed	$default	the default value
+	* @return	mixed				the config setting value
 	*/
 	public function get_config($key, $default = null)
 	{
@@ -59,12 +52,19 @@ abstract class Menu_Driver
 	/**
 	* Set a driver config setting.
 	*
-	* @param string $key the config key
-	* @param mixed $value the new config value
-	* @return object $this for chaining
+	* @param	string|array	$key	Config key or array of key-value pairs
+	* @param	mixed			$value	the new config value
+	* @return	$this					$this for chaining
 	*/
-	public function set_config($key, $value)
+	public function set_config($key, $value = null)
 	{
+		if (is_array($key))
+		{
+			foreach ($key as $k => $v)
+			{
+				$this->set_config($k, $v);
+			}
+		}
 		\Arr::set($this->config, $key, $value);
 
 		return $this;
