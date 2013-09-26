@@ -18,18 +18,21 @@ class Menu
 
 	/**
 	 * Loaded instance
+	 *
 	 * @var Menu|null
 	 */
 	protected static $_instance = null;
 
 	/**
 	 * Array of loaded instances
+	 *
 	 * @var array
 	 */
 	protected static $_instances = array();
 
 	/**
 	 * Default config
+	 *
 	 * @var array
 	 */
 	protected static $_defaults = array();
@@ -40,64 +43,43 @@ class Menu
 	public static function _init()
 	{
 		\Config::load('menu', true);
-		static::$_defaults = \Config::get('menu.defaults');
+		static::$_defaults = \Config::get('menu.defaults', array());
 	}
 
 	/**
-	 * Menu driver forge.
+	 * Menu driver instance
 	 *
-	 * @param 	string 			$menu 		The name of the menu
+	 * @param	mixed			$menu		The name of the menu
 	 * @param	string|array	$driver		Driver name or config array
 	 * @param	array			$config		Config array
-	 * @return  Menu instance
+	 * @return	object			Menu_Driver
 	 */
-	public static function forge($menu = 'default', $driver = 'static', array $config = array())
+	public static function instance($menu = 'default', $config = array())
 	{
-		if ( ! empty($driver) and ! is_array($driver))
+		if ( ! array_key_exists($menu, static::$_instances))
 		{
-			$config = $driver;
-			$driver = \Config::get('menu.default_driver', 'static');
-		}
-
-		$config = \Arr::merge(static::$_defaults, \Config::get('menu.drivers.' . $driver, array()), $config);
-
-		$driver = '\\Menu\\Menu_'.ucfirst(strtolower($driver));
-
-		if( ! class_exists($driver, true))
-		{
-			throw new \FuelException('Could not find Menu driver: ' . $driver);
-		}
-
-		$driver = new $driver($menu, $config);
-
-		static::$_instances[$menu] = $driver;
-
-		return $driver;
-	}
-
-	/**
-	 * Return a specific menu, or the default instance (is created if necessary)
-	 *
-	 * @param   string  driver id
-	 * @return  Menu_Driver
-	 */
-	public static function instance($instance = null)
-	{
-		if ($instance !== null)
-		{
-			if ( ! array_key_exists($instance, static::$_instances))
+			if ( ! empty($config) and ! is_array($config))
 			{
-				return false;
+				$driver = $config;
+				$config = array();
 			}
 
-			return static::$_instances[$instance];
+			isset($driver) or $driver = \Config::get('menu.default_driver', 'static');
+
+			$config = \Arr::merge(static::$_defaults, \Config::get('menu.drivers.' . $driver, array()), $config);
+
+			$driver = '\\Menu\\Menu_' . ucfirst(strtolower($driver));
+
+			if( ! class_exists($driver, true))
+			{
+				throw new \FuelException('Could not find Menu driver: ' . $driver);
+			}
+
+			$driver = new $driver($menu, $config);
+
+			static::$_instances[$menu] = $driver;
 		}
 
-		if (static::$_instance === null)
-		{
-			static::$_instance = static::forge();
-		}
-
-		return static::$_instance;
+		return static::$_instances[$menu];
 	}
 }
