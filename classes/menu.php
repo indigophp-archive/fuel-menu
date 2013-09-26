@@ -100,16 +100,4 @@ class Menu
 
 		return static::$_instance;
 	}
-
-	public static function flush($menu = null)
-	{
-		if ( ! is_null($menu))
-		{
-			return \Cache::delete('menu.' . $menu);
-		}
-		else
-		{
-			return \Cache::delete_all();
-		}
-	}
 }

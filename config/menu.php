@@ -12,7 +12,7 @@ return array(
 		'raw' => false
 	),
 
-	'default_driver' => 'default',
+	'default_driver' => 'static',
 
 	'drivers' => array(
 
