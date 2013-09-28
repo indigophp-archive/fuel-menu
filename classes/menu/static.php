@@ -5,43 +5,22 @@ namespace Menu;
 class Menu_Static extends Menu_Driver
 {
 
-	public function load()
+	protected function _load()
 	{
-		try {
-			$this->load_cache();
-		} catch (\CacheNotFoundException $e) {
-			$this->items = \Config::load('menu/' . $this->menu);
-		}
-		$this->original = $this->items;
+		return \Config::load('menu/' . $this->id, true, true, true);
 	}
 
-	public function add_item(array $item, $id = null)
+	protected function _update(array $menu)
 	{
-		# code...
+		// Save to file
+		\Config::save('menu/' . $this->id, $menu);
+
+		// Reload data to object and return success
+		return $this->menu = $this->load(false);
 	}
 
-	public function merge_items(array $items)
+	protected function _render()
 	{
-		return $this->items = \Arr::merge($this->items, $items);
-	}
-
-	public function delete_item($value='')
-	{
-		# code...
-	}
-
-	public function save()
-	{
-		if ($this->items !== $this->original)
-		{
-			\Cache::set('menu.' . $this->menu, $this->items);
-			return \Config::save('menu/' . $this->menu, $this->items);
-		}
-		return true;
-	}
-
-	public function _render()
-	{
-		# code...
+		return $this->menu;
 	}
 }

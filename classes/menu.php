@@ -54,19 +54,20 @@ class Menu
 	 * @param	array			$config		Config array
 	 * @return	object			Menu_Driver
 	 */
-	public static function instance($menu = 'default', $config = array())
+	public static function instance($menu, $config = array())
 	{
+		// Instance does not exists
 		if ( ! array_key_exists($menu, static::$_instances))
 		{
+			// When a string was passed it's just the driver type
 			if ( ! empty($config) and ! is_array($config))
 			{
 				$driver = $config;
 				$config = array();
 			}
 
-			isset($driver) or $driver = \Config::get('menu.default_driver', 'static');
-
-			$config = \Arr::merge(static::$_defaults, \Config::get('menu.drivers.' . $driver, array()), $config);
+			// No driver type passed, so falling back to default
+			isset($driver) or $driver = \Arr::get($config, 'driver', \Config::get('menu.driver', 'static'));
 
 			$driver = '\\Menu\\Menu_' . ucfirst(strtolower($driver));
 
@@ -74,6 +75,8 @@ class Menu
 			{
 				throw new \FuelException('Could not find Menu driver: ' . $driver);
 			}
+
+			$config = \Arr::merge(static::$_defaults, \Config::get('menu.drivers.' . $driver, array()), $config);
 
 			$driver = new $driver($menu, $config);
 

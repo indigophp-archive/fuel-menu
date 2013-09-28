@@ -11,9 +11,9 @@ return array(
 		)
 	),
 
-	'default_driver' => 'static',
+	'driver'   => 'static',
 
-	'drivers' => array(
+	'drivers'  => array(
 
 	),
 );

@@ -14,27 +14,44 @@ namespace Menu;
 abstract class Menu_Driver
 {
 	/**
-	 * Menu name
-	 * @var string
+	 * Menu id
+	 *
+	 * @var mixed
 	 */
-	protected $menu = null;
+	protected $id = null;
 
 	/**
-	 * Menu items
+	 * Menu
+	 *
 	 * @var array
 	 */
-	protected $items = array();
+	protected $menu = array();
+
+	/**
+	 * Menu meta data
+	 *
+	 * @var array
+	 */
+	protected $meta = array();
+
+	/**
+	 * Config
+	 *
+	 * @var array
+	 */
+	protected $config = array();
 
 	/**
 	 * Driver constructor
 	 *
-	 * @param string	$menu		menu name
-	 * @param array 	$config 	Config array
+	 * @param	string	$id			menu name
+	 * @param	array 	$config 	Config array
 	 */
-	public function __construct($menu, $config)
+	public function __construct($id, $config)
 	{
 		$this->config = $config;
-		$this->set_menu($menu);
+		$this->id     = $id;
+		$this->menu   = $this->load();
 	}
 
 	/**
@@ -71,99 +88,116 @@ abstract class Menu_Driver
 	}
 
 	/**
-	 * Get the active menu
+	 * Load the menu data
 	 *
-	 * @return string
+	 * @param	boolean	$cached		Load the menu without cache regardless it is enabled or not
+	 * @return	array	Menu data
 	 */
-	public function get_menu()
-	{
-		return $this->menu;
-	}
-
-	/**
-	 * Set the active menu
-	 *
-	 * @param 	string|null 	$menu 	Set this to null to remove menu
-	 * @return 	$this
-	 */
-	public function set_menu($menu = null)
-	{
-		$this->menu = $menu;
-		$this->load();
-		return $this;
-	}
-
-	public function add_items(array $items)
-	{
-		foreach ($items as $id => $item) {
-			$this->add_item($item, $id);
-		}
-	}
-
-	protected function load_cache()
+	public function load($cached = true)
 	{
 		if ($this->get_config('cache.enabled', false) === true)
 		{
+			$cache = \Cache::forge($this->get_config('cache.prefix', 'menu') . '.' . $this->id, $this->get_config('cache'));
+
 			try
 			{
-				return $this->items = \Cache::get($this->get_config('cache.prefix', 'menu') . '.' . $this->menu);
+				if ($cached === false)
+				{
+					$cache->delete();
+				}
+
+				$menu = $cache->get();
 			}
 			catch (\CacheNotFoundException $e)
 			{
-				return false;
+				$menu  = $this->_load();
+				$cache->set($menu, $this->get_config('cache.expiration'));
 			}
 		}
-		return null;
+		else
+		{
+			$menu = $this->_load();
+		}
+
+		return $menu;
 	}
 
+	/**
+	 * Get the active menu id
+	 *
+	 * @return mixed
+	 */
+	public function get_id()
+	{
+		return $this->id;
+	}
+
+	/**
+	 * Render menu data
+	 *
+	 * @return	array	Rendered menu data
+	 */
+	public function render()
+	{
+		return $this->_render();
+	}
+
+	/**
+	 * Update menu
+	 *
+	 * @param  array	$menu	Menu data
+	 * @return boolean			Success of update operation
+	 */
+	public function update(array $menu = array())
+	{
+		return $this->_update($menu);
+	}
+
+	public function delete()
+	{
+		return $this->flush()->_delete();
+	}
+
+	/**
+	 * Flush cache
+	 *
+	 * @return object $this
+	 */
 	public function flush()
 	{
-		return \Cache::delete($this->get_config('cache.prefix', 'menu') . '.' . $this->menu);
+		if ($this->get_config('cache.enabled', false) === true)
+		{
+			$cache = \Cache::forge($this->get_config('cache.prefix', 'menu') . '.' . $this->id, $this->get_config('cache'));
+			$cache->delete();
+		}
+
+		return $this;
 	}
 
 	/**
-	 * Load the menu data from source
+	 * Load the menu data
 	 *
-	 * @param  string $menu Name of the menu
-	 * @return $this
+	 * @return	array	Menu data
 	 */
-	abstract public function load();
+	abstract protected function _load();
 
 	/**
-	 * Add one menu item
+	 * Update the menu data
 	 *
-	 * @param  array $item Menu item
-	 * @return $this
+	 * @return	array	Menu data
 	 */
-	abstract public function add_item(array $item, $id = null);
-
-	/**
-	 * Delete one item
-	 *
-	 * @param  mixed 	$id    Item identifier
-	 * @return boolean
-	 */
-	abstract public function delete_item($id);
-
-	/**
-	 * Merge menu structure to the existing menu
-	 *
-	 * @param  array  $items Menu structure that fits into the existing structure
-	 * @return $this
-	 */
-	abstract public function merge_items(array $items);
+	abstract protected function _update(array $menu);
 
 	/**
 	 * Driver's render function
 	 *
 	 * @return mixed   Return the items
 	 */
-	abstract public function render();
+	abstract protected function _render();
 
 	/**
-	 * Save the items
-	 *
-	 * @return boolean
+	 * Delete menu
+	 * @return boolean Success of deletion
 	 */
-	abstract public function save();
+	abstract protected function _delete();
 }
