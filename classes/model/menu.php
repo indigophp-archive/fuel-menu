@@ -18,7 +18,8 @@ class Model_Menu extends \Orm\Model_Nestedset
 		'name',
 		'url',
 		'fields' => array(
-			'data_type' => 'serialize'
+			'data_type' => 'serialize',
+			'default'   => array()
 		),
 	);
 

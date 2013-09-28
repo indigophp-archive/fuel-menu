@@ -15,8 +15,8 @@ class Menu_Db extends Menu_Driver
 	{
 		$tree = Model_Menu::forge()->set_tree_id($this->id)->root()->get_one()->dump_tree();
 		$tree = reset($tree);
-		$this->root = $tree['id'];
-		return $tree['children'];
+		$this->root = \Arr::get($tree, 'id');
+		return \Arr::get($tree, 'children', array());
 	}
 
 	protected function _update(array $menu, $root = null)
@@ -33,9 +33,17 @@ class Menu_Db extends Menu_Driver
 			$id = \Arr::get($item, 'id', $id);
 			$model = Model_Menu::find($id);
 
-			$properties = \Arr::filter_keys($item, Model_Menu::properties());
-			// $fields = \Arr::filter_keys($item, Model_Menu::properties(), true);
-			// $properties['fields'] = $fields;
+			$skip_fields = \Arr::merge(Model_Menu::primary_key(), Model_Menu::tree_config(), array('children'));
+			\Arr::delete($skip_fields, array('read-only', 'title_field'));
+
+			$properties = \Arr::filter_keys($item, array_keys(Model_Menu::properties()));
+			$properties = \Arr::filter_keys($properties, $skip_fields, true);
+
+			$fields = \Arr::filter_keys($item, array_keys($properties), true);
+			$fields = \Arr::filter_keys($fields, $skip_fields, true);
+			is_array($properties['fields']) or $properties['fields'] = array();
+			$properties['fields'] = \Arr::merge($properties['fields'], $fields);
+
 			$model->set($properties);
 
 			if (is_null($previous))
@@ -50,7 +58,7 @@ class Menu_Db extends Menu_Driver
 
 			$previous = $id;
 
-			empty($item['children']) or $this->_update(array($id => $item['children']), $model);
+			empty($item['children']) or $this->_update($item['children'], $model);
 		}
 	}
 
@@ -61,6 +69,6 @@ class Menu_Db extends Menu_Driver
 
 	protected function _delete()
 	{
-
+		return Model_Menu::find($this->root)->delete_tree();
 	}
 }
