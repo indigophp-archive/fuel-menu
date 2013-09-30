@@ -125,7 +125,7 @@ abstract class Menu_Driver
 	/**
 	 * Get the active menu id
 	 *
-	 * @return mixed
+	 * @return	mixed
 	 */
 	public function get_id()
 	{
@@ -145,14 +145,31 @@ abstract class Menu_Driver
 	/**
 	 * Update menu
 	 *
-	 * @param  array	$menu	Menu data
-	 * @return boolean			Success of update operation
+	 * @param	array	$menu	Menu data
+	 * @return	boolean			Success of update operation
 	 */
 	public function update(array $menu = array())
 	{
-		return $this->_update($menu);
+		$update = $this->_update($menu);
+		$this->menu = $this->load(false);
+		return $update;
 	}
 
+	/**
+	 * Edit menu
+	 *
+	 * @param	array	$menu	Menu info
+	 * @return	boolean			Success of edit operation
+	 */
+	public function edit(array $menu = array())
+	{
+		return $this->_edit($menu);
+	}
+
+	/**
+	 * Delete menu
+	 * @return	boolean	Success of delete operation
+	 */
 	public function delete()
 	{
 		return $this->flush()->_delete();
@@ -161,7 +178,7 @@ abstract class Menu_Driver
 	/**
 	 * Flush cache
 	 *
-	 * @return object $this
+	 * @return	object	$this
 	 */
 	public function flush()
 	{
@@ -184,20 +201,30 @@ abstract class Menu_Driver
 	/**
 	 * Update the menu data
 	 *
-	 * @return	array	Menu data
+	 * @param	array	$menu	Menu information
+	 * @return	array			Menu data
 	 */
 	abstract protected function _update(array $menu);
 
 	/**
-	 * Driver's render function
+	 * Edit menu information
 	 *
-	 * @return mixed   Return the items
+	 * @param	array	$menu	Menu information
+	 * @return	boolean			Success of edit operation
+	 */
+	abstract protected function _edit(array $menu);
+
+	/**
+	 * Render function
+	 *
+	 * @return	mixed	Return the items
 	 */
 	abstract protected function _render();
 
 	/**
 	 * Delete menu
-	 * @return boolean Success of deletion
+	 *
+	 * @return	boolean	Success of deletion
 	 */
 	abstract protected function _delete();
 }
