@@ -29,10 +29,14 @@ class Menu_Db extends Menu_Driver
 
 		$previous = null;
 
-		foreach ($menu as $id => $item)
+		foreach ($menu as $item)
 		{
-			$id = \Arr::get($item, 'id', $id);
+			// Get id from input and find the model
+			$id = \Arr::get($item, 'id');
 			$model = Model_Menu::find($id);
+
+			// If model is not found then forge it
+			is_null($model) and $model = Model_Menu::forge();
 
 			// Skip tree fields
 			$skip_fields = \Arr::merge(Model_Menu::primary_key(), Model_Menu::tree_config(), array('children'));
