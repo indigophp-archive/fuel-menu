@@ -49,7 +49,7 @@ class Menu_Db extends Menu_Driver
 			//Model 'fields' property fields
 			$fields = \Arr::filter_keys($item, array_keys($properties), true);
 			$fields = \Arr::filter_keys($fields, $skip_fields, true);
-			is_array($properties['fields']) or $properties['fields'] = array();
+			isset($properties['fields']) or $properties['fields'] = array();
 			$properties['fields'] = \Arr::merge($properties['fields'], $fields);
 
 			$model->set($properties);
