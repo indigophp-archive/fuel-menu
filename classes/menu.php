@@ -85,4 +85,9 @@ class Menu
 
 		return static::$_instances[$menu];
 	}
+
+	public static function render($menu)
+	{
+		static::instance($menu)->render();
+	}
 }
