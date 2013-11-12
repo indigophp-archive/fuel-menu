@@ -45,6 +45,12 @@ class Menu
 	protected $data = array();
 
 	/**
+	 * Added menu elements
+	 * @var array
+	 */
+	protected $add = array();
+
+	/**
 	 * Menu meta data
 	 *
 	 * @var array
@@ -74,7 +80,7 @@ class Menu
 	 * @param	array			$config		Config array
 	 * @return	object			Menu_Driver
 	 */
-	public static function get($menu, $config = array())
+	public static function instance($menu, $config = array())
 	{
 		// Instance does not exists
 		if ( ! array_key_exists($menu, static::$_menus))
@@ -101,7 +107,7 @@ class Menu
 
 	public static function render_menu($menu)
 	{
-		return static::get($menu)->render();
+		return static::instance($menu)->render();
 	}
 
 	/**
@@ -117,22 +123,24 @@ class Menu
 
 		if ($this->get_config('cache.enabled', false) === true)
 		{
-			$cache = \Cache::forge($this->get_config('cache.prefix', 'menu') . '.' . $this->menu, $this->get_config('cache'));
+			$cache = \Cache::forge($this->get_config('cache.prefix', 'menu') . '.' . $menu, $this->get_config('cache'));
 
 			try
 			{
-				$menu = $cache->get();
+				$data = $cache->get();
 			}
 			catch (\CacheNotFoundException $e)
 			{
-				$this->data = $this->load();
-				$cache->set($this->data, $this->get_config('cache.expiration'));
+				$data = $this->load();
+				$cache->set($data, $this->get_config('cache.expiration'));
 			}
 		}
 		else
 		{
-			$this->data = $this->load();
+			$data = $this->load();
 		}
+
+		$this->data = $data;
 	}
 
 	/**
@@ -186,5 +194,46 @@ class Menu
 		}
 
 		return $this;
+	}
+
+	public function add(array $item, $key = null)
+	{
+		if ($key === null)
+		{
+			$this->add = \Arr::merge($this->add, $item);
+		}
+		elseif (is_String($key))
+		{
+			$this->add[$key] = $item;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Flush cache
+	 *
+	 * @return	object	$this
+	 */
+	public function flush()
+	{
+		if ($this->get_config('cache.enabled', false) === true)
+		{
+			\Cache::delete($this->get_config('cache.prefix', 'menu') . '.' . $this->menu);
+		}
+
+		return $this;
+	}
+
+	public function load()
+	{
+		return array();
+	}
+
+	public function render()
+	{
+		$menu = \Arr::merge($this->data, $this->add);
+
+		return $menu;
 	}
 }

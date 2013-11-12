@@ -40,7 +40,7 @@ class Model_Menu extends \Orm\Model_Nestedset
 
 	public function _event_before_insert()
 	{
-		if ($this->is_root())
+		if ($this->is_root() and empty($this->slug))
 		{
 			\Orm\Observer_Slug::orm_notify($this, 'before_insert');
 		}

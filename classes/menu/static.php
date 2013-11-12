@@ -2,16 +2,41 @@
 
 namespace Menu;
 
-class Menu_Static extends Menu_Driver
+class Menu_Static extends Menu
 {
 
-	protected function _load()
+	protected function load($menu = null)
 	{
-		$menu = \Config::load('menu/' . $this->id, true, true, true);
-		return \Arr::get($menu, 'children', array());
+		$menu = $menu ?: $this->menu;
+
+		$data = \Config::load('menu/' . $menu, true, true, true);
+
+		$this->meta = array(
+			'name'       => \Arr::get($data, 'name'),
+			'identifier' => \Arr::get($data, 'slug'),
+			'num_items'  => $this->count($data['children']),
+		);
+
+		return $data;
 	}
 
-	protected function _update(array $menu)
+	protected function count($menu)
+	{
+		static $count = 0;
+
+		foreach($menu as $item)
+		{
+			if (is_array($item) and array_key_exists('children', $item))
+			{
+				$this->count($item['children']);
+			}
+
+			$count++;
+		}
+		return $count;
+	}
+
+	public function update(array $menu)
 	{
 		// Set children
 		$root = \Config::get('menu/' . $this->id, array());
@@ -21,22 +46,22 @@ class Menu_Static extends Menu_Driver
 		return \Config::save('menu/' . $this->id, $root);
 	}
 
-	protected function _edit(array $menu = array())
+	public function edit(array $menu = array())
 	{
 		// Set children to menu info
-		$menu['children'] = $this->menu;
+		$menu['children'] = $this->data;
 
 		// Save to file
 		return \Config::save('menu/' . $this->id, $menu);
 	}
 
-	protected function _delete()
+	public function delete()
 	{
 		return \Config::save('menu/' . $this->id, array());
 	}
 
-	protected function _render()
+	public function render()
 	{
-		return $this->menu;
+		return $this->data['children'];
 	}
 }
