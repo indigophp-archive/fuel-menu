@@ -11,8 +11,10 @@ class Create_menu
 			'left_id'  => array('constraint' => 11, 'type' => 'int', 'unsigned' => true),
 			'right_id' => array('constraint' => 11, 'type' => 'int', 'unsigned' => true),
 			'tree_id'  => array('constraint' => 11, 'type' => 'int', 'unsigned' => true),
-			'name'     => array('constraint' => 255, 'type' => 'varchar'),
+			'name'     => array('constraint' => 252, 'type' => 'varchar'),
+			'slug'     => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
 			'url'      => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+			'fields'   => array('type' => 'text', 'null' => true),
 		), array('id'));
 
 		\DBUtil::create_index('menu', 'left_id');

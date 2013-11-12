@@ -2,35 +2,48 @@
 
 namespace Menu;
 
-class Menu_Db extends Menu_Driver
+class Menu_Db extends Menu
 {
-
-	/**
-	 * Root node id
-	 * @var int
-	 */
-	protected $root;
-
-	protected function _load()
+	protected function load($menu = null)
 	{
-		$root = Model_Menu::forge()->set_tree_id($this->id)->root()->get_one();
-		if (is_null($root))
+		$menu = $menu ?: $this->menu;
+
+		if (is_numeric($menu))
 		{
-			throw new MenuException('Menu #' . $this->id . ' not found');
+			$root = Model_Menu::find_by_tree_id($menu);
+		}
+		else
+		{
+			$root = Model_Menu::find_by_slug($menu);
 		}
 
-		$this->root = $root->id;
-		$tree = $root->dump_tree();
-		$tree = reset($tree);
-		return \Arr::get($tree, 'children', array());
+		if (is_null($root))
+		{
+			throw new MenuException('Menu ' . (is_numeric($menu) ? '#' : '') . $menu . ' not found');
+		}
+		elseif ( ! $root->is_root())
+		{
+			$root = $root->root();
+			$this->menu = $root->slug;
+			\Log::write(250, 'Menu ' . (is_numeric($menu) ? '#' : '') . $menu . ' is not a root element.');
+		}
+
+		$this->meta = array(
+			'name'       => $root->name,
+			'identifier' => $root->slug,
+			'num_items'  => $root->count_descendants(),
+		);
+
+		$root->descendants()->get();
+		return $root;
 	}
 
-	protected function _update(array $menu, $root = null)
+	public function update(array $menu, $root = null)
 	{
 		// No root passed, so get the tree root node
 		if (is_null($root))
 		{
-			$root = Model_Menu::forge()->find($this->root);
+			$root = $this->data;
 		}
 
 		// Previous menu item id
@@ -49,19 +62,7 @@ class Menu_Db extends Menu_Driver
 			// If model is not found then forge it
 			is_null($model) and $model = Model_Menu::forge();
 
-			// Skip tree fields and primary keys
-			$skip_fields = \Arr::merge(Model_Menu::primary_key(), Model_Menu::tree_config(), array('children'));
-			\Arr::delete($skip_fields, array('read-only', 'title_field'));
-
-			// Model properties
-			$properties = \Arr::filter_keys($item, array_keys(Model_Menu::properties()));
-			$properties = \Arr::filter_keys($properties, $skip_fields, true);
-
-			//Model 'fields' property fields
-			$fields = \Arr::filter_keys($item, array_keys($properties), true);
-			$fields = \Arr::filter_keys($fields, $skip_fields, true);
-			isset($properties['fields']) or $properties['fields'] = array();
-			$properties['fields'] = \Arr::merge($properties['fields'], $fields);
+			$properties = $this->prep_props($item);
 
 			$model->set($properties);
 
@@ -73,21 +74,20 @@ class Menu_Db extends Menu_Driver
 			}
 			else
 			{
-				$model_prev = Model_Menu::find($previous);
-				$model->next_sibling($model_prev)->save();
+				$model->next_sibling($previous)->save();
 			}
 
 			// Is this a new menu item? Get it's id
 			is_null($id) and $id = $model->id;
 
-			// Set the previous node id
-			$previous = $id;
+			// Set the previous node
+			$previous = $model;
 
 			// This menu item is processed
 			$processed[] = $id;
 
 			// If there are children then call the function again
-			empty($item['children']) or $this->_update($item['children'], $model);
+			empty($item['children']) or $this->update($item['children'], $model);
 		}
 
 		// We are back from recusion: the current root is the tree root node
@@ -106,34 +106,47 @@ class Menu_Db extends Menu_Driver
 		return true;
 	}
 
-	protected function _edit(array $menu = array())
+	public function edit(array $menu = array())
 	{
-		$root = Model_Menu::forge()->find($this->root);
+		$root = $this->root;
 
+		$properties = $this->prep_props($menu);
+
+		return $root->set($properties)->save();
+	}
+
+	protected function prep_props(array $props)
+	{
 		// Skip tree fields and primary keys
 		$skip_fields = \Arr::merge(Model_Menu::primary_key(), Model_Menu::tree_config(), array('children'));
 		\Arr::delete($skip_fields, array('read-only', 'title_field'));
 
 		// Model properties
-		$properties = \Arr::filter_keys($menu, array_keys(Model_Menu::properties()));
+		$properties = \Arr::filter_keys($props, array_keys(Model_Menu::properties()));
 		$properties = \Arr::filter_keys($properties, $skip_fields, true);
 
 		//Model 'fields' property fields
-		$fields = \Arr::filter_keys($menu, array_keys($properties), true);
+		$fields = \Arr::filter_keys($props, array_keys($properties), true);
 		$fields = \Arr::filter_keys($fields, $skip_fields, true);
 		is_array($properties['fields']) or $properties['fields'] = array();
 		$properties['fields'] = \Arr::merge($properties['fields'], $fields);
 
-		return $root->set($properties)->save();
+		return $properties;
 	}
 
-	protected function _render()
+	public function render()
 	{
-		return $this->menu;
+		$menu = $this->data->dump_tree();
+		$menu = reset($menu);
+		$menu = $menu['children'];
+
+		$menu = \Arr::merge($menu, $this->add);
+
+		return $menu;
 	}
 
-	protected function _delete()
+	public function delete()
 	{
-		return Model_Menu::find($this->root)->delete_tree();
+		return $this->data->delete_tree();
 	}
 }

@@ -4,7 +4,7 @@
 return array(
 	'defaults' => array(
 		'cache' => array(
-			'enabled'    => true,
+			'enabled'    => false,
 			'prefix'     => 'menu',
 			'expiration' => 3600,
 			'driver'     => 'file',
