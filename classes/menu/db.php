@@ -2,24 +2,24 @@
 
 namespace Menu;
 
-class Menu_Db extends Menu_Driver
+class Menu_Db extends Menu
 {
-
 	/**
-	 * Root node id
+	 * Root node menu
 	 * @var int
 	 */
 	protected $root;
 
-	protected function _load()
+	protected function load()
 	{
-		$root = Model_Menu::forge()->set_tree_id($this->id)->root()->get_one();
+		$root = Model_Menu::forge()->set_tree_id($this->menu)->root()->get_one();
+
 		if (is_null($root))
 		{
-			throw new MenuException('Menu #' . $this->id . ' not found');
+			throw new MenuException('Menu #' . $this->menu . ' not found');
 		}
 
-		$this->root = $root->id;
+		$this->root = $root;
 		$tree = $root->dump_tree();
 		$tree = reset($tree);
 		return \Arr::get($tree, 'children', array());
@@ -30,7 +30,7 @@ class Menu_Db extends Menu_Driver
 		// No root passed, so get the tree root node
 		if (is_null($root))
 		{
-			$root = Model_Menu::forge()->find($this->root);
+			$root = $this->root;
 		}
 
 		// Previous menu item id
@@ -127,9 +127,9 @@ class Menu_Db extends Menu_Driver
 		return $root->set($properties)->save();
 	}
 
-	protected function _render()
+	public function render()
 	{
-		return $this->menu;
+		return $this->root->dump_tree();
 	}
 
 	protected function _delete()

@@ -17,18 +17,11 @@ class Menu
 {
 
 	/**
-	 * Loaded instance
-	 *
-	 * @var Menu|null
-	 */
-	protected static $_instance = null;
-
-	/**
-	 * Array of loaded instances
+	 * Array of loaded menus
 	 *
 	 * @var array
 	 */
-	protected static $_instances = array();
+	protected static $_menus = array();
 
 	/**
 	 * Default config
@@ -36,6 +29,34 @@ class Menu
 	 * @var array
 	 */
 	protected static $_defaults = array();
+
+	/**
+	 * Menu name
+	 *
+	 * @var mixed
+	 */
+	protected $menu = null;
+
+	/**
+	 * Menu data
+	 *
+	 * @var array
+	 */
+	protected $data = array();
+
+	/**
+	 * Menu meta data
+	 *
+	 * @var array
+	 */
+	protected $meta = array();
+
+	/**
+	 * Config
+	 *
+	 * @var array
+	 */
+	protected $config = array();
 
 	/**
 	 * Init
@@ -50,44 +71,120 @@ class Menu
 	 * Menu driver instance
 	 *
 	 * @param	mixed			$menu		The name of the menu
-	 * @param	string|array	$driver		Driver name or config array
 	 * @param	array			$config		Config array
 	 * @return	object			Menu_Driver
 	 */
-	public static function instance($menu, $config = array())
+	public static function get($menu, $config = array())
 	{
 		// Instance does not exists
-		if ( ! array_key_exists($menu, static::$_instances))
+		if ( ! array_key_exists($menu, static::$_menus))
 		{
-			// When a string was passed it's just the driver type
+			// When a string was passed it's just the setup
 			if ( ! empty($config) and ! is_array($config))
 			{
-				$driver = $config;
+				$setup = $config;
 				$config = array();
 			}
 
-			// No driver type passed, so falling back to default
-			isset($driver) or $driver = \Arr::get($config, 'driver', \Config::get('menu.driver', 'static'));
+			// No setup type passed, so falling back to default
+			isset($setup) or $setup = \Arr::get($config, 'setup', \Config::get('menu.setup', 'default'));
 
-			$driver = '\\Menu\\Menu_' . ucfirst(strtolower($driver));
+			$config = \Arr::merge(static::$_defaults, \Config::get('menu.setups.' . $setup, array()), $config);
 
-			if( ! class_exists($driver, true))
-			{
-				throw new \FuelException('Could not find Menu driver: ' . $driver);
-			}
+			$class = new static($menu, $config);
 
-			$config = \Arr::merge(static::$_defaults, \Config::get('menu.drivers.' . $driver, array()), $config);
-
-			$driver = new $driver($menu, $config);
-
-			static::$_instances[$menu] = $driver;
+			static::$_menus[$menu] = $class;
 		}
 
-		return static::$_instances[$menu];
+		return static::$_menus[$menu];
 	}
 
-	public static function render($menu)
+	public static function render_menu($menu)
 	{
-		static::instance($menu)->render();
+		return static::get($menu)->render();
+	}
+
+	/**
+	 * Driver constructor
+	 *
+	 * @param	string	$menu		Menu name
+	 * @param	array 	$config 	Config array
+	 */
+	public function __construct($menu, $config)
+	{
+		$this->config = $config;
+		$this->menu   = $menu;
+
+		if ($this->get_config('cache.enabled', false) === true)
+		{
+			$cache = \Cache::forge($this->get_config('cache.prefix', 'menu') . '.' . $this->menu, $this->get_config('cache'));
+
+			try
+			{
+				$menu = $cache->get();
+			}
+			catch (\CacheNotFoundException $e)
+			{
+				$this->data = $this->load();
+				$cache->set($this->data, $this->get_config('cache.expiration'));
+			}
+		}
+		else
+		{
+			$this->data = $this->load();
+		}
+	}
+
+	/**
+	* Get a driver config setting
+	*
+	* @param	string|null		$key		Config key
+	* @param	mixed			$default	Default value
+	* @return	mixed						Config setting value or the whole config array
+	*/
+	public function get_config($key = null, $default = null)
+	{
+		if (is_null($key))
+		{
+			return $this->config;
+		}
+		elseif (is_array($key))
+		{
+			return \Arr::subset($this->config, $key, $default);
+		}
+		else
+		{
+			return \Arr::get($this->config, $key, $default);
+		}
+	}
+
+	/**
+	* Set a driver config setting
+	*
+	* @param	string|array	$key		Config key or array of key-value pairs
+	* @param	mixed			$value		New config value
+	* @return	$this						$this for chaining
+	*/
+	public function set_config($key, $value = null)
+	{
+		// Merge config or just set an element
+		if (is_array($key))
+		{
+			// Set default values and merge config reverse order
+			if ($value === true)
+			{
+				$this->config = \Arr::merge($key, $this->config);
+			}
+			else
+			{
+				$this->config = \Arr::merge($this->config, $key);
+			}
+		}
+		else
+		{
+			\Arr::set($this->config, $key, $value);
+		}
+
+		return $this;
 	}
 }
