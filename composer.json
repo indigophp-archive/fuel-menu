@@ -1,5 +1,5 @@
 {
-    "name": "fuel/menu",
+    "name": "indigophp/fuel-menu",
     "type": "fuel-package",
     "description": "Fuel Menu package",
     "keywords": ["menu", "fuel"],
