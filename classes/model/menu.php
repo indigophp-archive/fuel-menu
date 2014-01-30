@@ -1,4 +1,15 @@
 <?php
+/**
+ * Fuel Menu
+ *
+ * @package 	Fuel
+ * @subpackage	Menu
+ * @version 	1.0
+ * @author		Márk Sági-Kazár <mark.sagikazar@gmail.com>
+ * @license 	MIT License
+ * @copyright	2013 - 2014 Indigo Development Team
+ * @link		https://indigophp.com
+ */
 
 namespace Menu;
 
