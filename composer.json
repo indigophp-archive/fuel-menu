@@ -1,10 +1,10 @@
 {
     "name": "indigophp/fuel-menu",
     "type": "fuel-package",
-    "description": "Fuel Menu package",
-    "keywords": ["menu", "fuel"],
-    "homepage": "https://indigophp.com",
+    "description": "Fuel wrapper around Knp Menu package",
     "license": "MIT",
+    "keywords": ["menu"],
+    "homepage": "https://indigophp.com",
     "authors": [
         {
             "name": "Márk Sági-Kazár",
@@ -12,9 +12,17 @@
         }
     ],
     "require": {
-        "composer/installers": "~1.0"
+        "composer/installers": "~1.0",
+        "indigophp/fuel-dependency": "dev-develop"
+    },
+    "autoload": {
+        "psr-4": {
+            "Indigo\\Fuel\\Menu\\": "classes/"
+        }
     },
     "extra": {
         "installer-name": "menu"
-    }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
 }
