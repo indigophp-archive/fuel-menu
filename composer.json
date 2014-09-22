@@ -13,7 +13,8 @@
     ],
     "require": {
         "composer/installers": "~1.0",
-        "indigophp/fuel-dependency": "dev-develop"
+        "indigophp/fuel-dependency": "dev-develop",
+        "knplabs/knp-menu": "~2.0.0"
     },
     "autoload": {
         "psr-4": {
