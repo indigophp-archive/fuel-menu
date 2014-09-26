@@ -17,6 +17,9 @@
         "knplabs/knp-menu": "~2.0.0"
     },
     "autoload": {
+        "psr-0": {
+            "Knp\\Menu\\": "lib/"
+        },
         "psr-4": {
             "Indigo\\Fuel\\Menu\\": "classes/"
         }

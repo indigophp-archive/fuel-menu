@@ -37,14 +37,15 @@ class FuelProvider implements MenuProviderInterface
 	 */
 	public function get($name = null, array $options = [])
 	{
-		return DiC::multiton('menu', $name, [null, $options]);
+		return $this->container->resolve($name);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function has($name)
+	public function has($name, array $options = [])
 	{
-		return DiC::isInstance('menu', $name, false);
+		// return DiC::isInstance('menu', $name, false);
+		return true;
 	}
 }

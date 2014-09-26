@@ -9,8 +9,6 @@ We accept contributions via Pull Requests on [Github](https://github.com/indigop
 
 ## Pull Requests
 
-- **Add tests!** - Your patch won't be accepted if it doesn't have tests.
-
 - **Document any change in behaviour** - Make sure the README and any other relevant documentation are kept up-to-date.
 
 - **Consider our release cycle** - We try to follow semver. Randomly breaking public APIs is not an option.
@@ -53,13 +51,6 @@ By making a contribution to this project, I certify that:
     personal information I submit with it, including my sign-off) is
     maintained indefinitely and may be redistributed consistent with
     this project or the open source license(s) involved.
-```
-
-
-## Testing
-
-``` bash
-$ codecept run
 ```
 
 

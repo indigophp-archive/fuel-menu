@@ -24,12 +24,6 @@ Via Composer
 ## Usage
 
 
-## Testing
-
-``` bash
-$ codecept run
-```
-
 
 ## Contributing
 

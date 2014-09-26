@@ -11,7 +11,7 @@
 
 namespace Knp\Menu\Renderer;
 
-use Indigo\Fuel\Dependency\Container as DiC;
+use Fuel\Dependency\Container;
 
 /**
  * Fuel Renderer Provider using Dependency Container
@@ -21,16 +21,50 @@ use Indigo\Fuel\Dependency\Container as DiC;
 class FuelProvider implements RendererProviderInterface
 {
 	/**
+	 * Menu Renderer Container
+	 *
+	 * @var Container
+	 */
+	private $container;
+
+	/**
+	 * Default renderer
+	 *
+	 * @var string
+	 */
+	private $default;
+
+	/**
+	 * Renderers
+	 *
+	 * @var string[]
+	 */
+	private $renderers;
+
+	public function __construct(Container $container, $default, array $renderers)
+	{
+		$this->container = $container;
+		$this->default = $default;
+		$this->renderers = $renderers;
+	}
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function get($name = null)
 	{
-		if (($renderer = \Config::get('menu.renderers.' . $name, false)) === false)
+		// if no name given
+		if (is_null($name))
 		{
-			throw new \InvalidArgumentException(sprintf('The renderer "%s" is not defined.', $name));
+			$name = $this->default;
 		}
 
-		return DiC::resolve('menu.renderer.'.$renderer);
+		// if ( ! $this->has($name))
+		// {
+		// 	throw new \InvalidArgumentException(sprintf('The renderer "%s" is not defined.', $name));
+		// }
+
+		return $this->container->resolve($name);
 	}
 
 	/**
@@ -38,6 +72,6 @@ class FuelProvider implements RendererProviderInterface
 	 */
 	public function has($name)
 	{
-		return (bool) \Config::get('menu.renderers.' . $name, false);
+		return isset($this->renderers[$name]);
 	}
 }

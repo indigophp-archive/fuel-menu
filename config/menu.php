@@ -19,5 +19,5 @@
  */
 
 return [
-	'renderers' => [],
+	'menus' => [],
 ];
