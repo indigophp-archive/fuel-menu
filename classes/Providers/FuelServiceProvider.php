@@ -24,6 +24,7 @@ class FuelServiceProvider extends ServiceProvider
 	 * {@inheritdoc}
 	 */
 	public $provides = [
+		'menu',
 		'menu.factory',
 		'menu.matcher',
 		'menu.loader.array',
@@ -82,16 +83,19 @@ class FuelServiceProvider extends ServiceProvider
 		{
 			$default = \Config::get('menu.default_renderer', 'list');
 			$renderers = \Config::get('menu.renderers', []);
-			$container = $dic->multiton('container', 'menu.renderer');
 
-			return $dic->resolve('Knp\\Menu\\Renderer\\FuelProvider', [$container, $default, $renderers]);
+			return $dic->resolve('Knp\\Menu\\Renderer\\FuelProvider', [$dic, $default, $renderers]);
 		});
 
 		$this->register('menu.provider', function($dic)
 		{
-			$container = $dic->multiton('container', 'menu');
+			$menus = \Config::get('menu.menus', []);
 
-			return $dic->resolve('Knp\\Menu\\Provider\\FuelProvider', [$container]);
+			foreach ($menus as $menu => &$data) {
+				$data = $menu;
+			}
+
+			return $dic->resolve('Knp\\Menu\\Provider\\FuelProvider', [$dic, $menus]);
 		});
 
 		$this->registerRenderers();
@@ -100,19 +104,17 @@ class FuelServiceProvider extends ServiceProvider
 
 	private function registerRenderers()
 	{
-		$container = $this->multiton('container', 'menu.renderer');
-
-		$container->register('list', function($dic)
+		$this->register('menu.renderer.list', function($dic)
 		{
-			$matcher = $dic->resolve('__parent__')->resolve('menu.matcher');
+			$matcher = $dic->resolve('menu.matcher');
 
 			return $dic->resolve('Knp\\Menu\\Renderer\\ListRenderer', [$matcher]);
 		});
 
-		$container->register('twig', function($dic)
+		$this->register('menu.renderer.twig', function($dic)
 		{
-			$twig = $dic->resolve('__parent__')->resolve('twig');
-			$matcher = $dic->resolve('__parent__')->resolve('menu.matcher');
+			$twig = $dic->resolve('twig');
+			$matcher = $dic->resolve('menu.matcher');
 
 			// ugly hack: load template here
 			$twig->getLoader()->addPath(VENDORPATH.'knplabs/knp-menu/src/Knp/Menu/Resources/views');
@@ -123,11 +125,9 @@ class FuelServiceProvider extends ServiceProvider
 
 	private function registerMenus()
 	{
-		$container = $this->multiton('container', 'menu');
-
 		foreach (\Config::get('menu.menus', []) as $menu => $data)
 		{
-			$container->registerSingleton($menu, function($dic) use($data)
+			$this->extendMultiton('menu', $menu, function($dic) use($data)
 			{
 				return $this->resolve('menu.loader.array')->load($data);
 			});

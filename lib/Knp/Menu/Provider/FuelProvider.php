@@ -27,9 +27,17 @@ class FuelProvider implements MenuProviderInterface
 	 */
 	private $container;
 
-	public function __construct(Container $container)
+	/**
+	 * Menu names to container IDs
+	 *
+	 * @var []
+	 */
+	private $menus = [];
+
+	public function __construct(Container $container, array $menus = [])
 	{
 		$this->container = $container;
+		$this->menus = $menus;
 	}
 
 	/**
@@ -37,7 +45,11 @@ class FuelProvider implements MenuProviderInterface
 	 */
 	public function get($name = null, array $options = [])
 	{
-		return $this->container->resolve($name);
+		// if (array_key_exists($name, $this->menus)) {
+		// 	$name = $this->menus[$name];
+		// }
+
+		return $this->container->multiton('menu', $name);
 	}
 
 	/**
