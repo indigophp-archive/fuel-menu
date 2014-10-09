@@ -54,24 +54,24 @@ class FuelServiceProvider extends ServiceProvider
 			return $factory->createItem($title, $options);
 		});
 
-		$this->register('menu.factory', 'Knp\\Menu\\MenuFactory');
+		$this->registerSingleton('menu.factory', 'Knp\\Menu\\MenuFactory');
 		$this->register('menu.matcher', 'Knp\\Menu\\Matcher\\Matcher');
 
-		$this->register('menu.loader.array', function($dic)
+		$this->registerSingleton('menu.loader.array', function($dic)
 		{
 			$factory = $dic->resolve('menu.factory');
 
 			return $dic->resolve('Knp\\Menu\\Loader\\ArrayLoader', [$factory]);
 		});
 
-		$this->register('menu.twig.extension', function($dic)
+		$this->registerSingleton('menu.twig.extension', function($dic)
 		{
 			$helper = $dic->resolve('menu.twig.helper');
 
 			return $dic->resolve('Knp\\Menu\\Twig\\MenuExtension', [$helper]);
 		});
 
-		$this->register('menu.twig.helper', function($dic)
+		$this->registerSingleton('menu.twig.helper', function($dic)
 		{
 			$rendererProvider = $dic->resolve('menu.renderer_provider');
 			$menuProvider = $dic->resolve('menu.provider');
@@ -79,23 +79,17 @@ class FuelServiceProvider extends ServiceProvider
 			return $dic->resolve('Knp\\Menu\\Twig\\Helper', [$rendererProvider, $menuProvider]);
 		});
 
-		$this->register('menu.renderer_provider', function($dic)
+		$this->registerSingleton('menu.renderer_provider', function($dic)
 		{
 			$default = \Config::get('menu.default_renderer', 'list');
 			$renderers = \Config::get('menu.renderers', []);
 
-			return $dic->resolve('Knp\\Menu\\Renderer\\FuelProvider', [$dic, $default, $renderers]);
+			return $dic->resolve('Knp\\Menu\\Renderer\\FuelProvider', [$this->container, $default, $renderers]);
 		});
 
-		$this->register('menu.provider', function($dic)
+		$this->registerSingleton('menu.provider', function($dic)
 		{
-			$menus = \Config::get('menu.menus', []);
-
-			foreach ($menus as $menu => &$data) {
-				$data = $menu;
-			}
-
-			return $dic->resolve('Knp\\Menu\\Provider\\FuelProvider', [$dic, $menus]);
+			return $dic->resolve('Knp\\Menu\\Provider\\FuelProvider', [$this->container]);
 		});
 
 		$this->registerRenderers();

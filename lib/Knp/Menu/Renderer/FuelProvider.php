@@ -39,7 +39,7 @@ class FuelProvider implements RendererProviderInterface
 	 *
 	 * @var string[]
 	 */
-	private $renderers;
+	private $renderers = [];
 
 	public function __construct(Container $container, $default, array $renderers)
 	{
@@ -62,11 +62,6 @@ class FuelProvider implements RendererProviderInterface
 		if ($this->has($name)) {
 			$name = $this->renderers[$name];
 		}
-
-		// if ( ! $this->has($name))
-		// {
-		// 	throw new \InvalidArgumentException(sprintf('The renderer "%s" is not defined.', $name));
-		// }
 
 		return $this->container->resolve('menu.renderer.'.$name);
 	}

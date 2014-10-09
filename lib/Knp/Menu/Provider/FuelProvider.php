@@ -45,9 +45,10 @@ class FuelProvider implements MenuProviderInterface
 	 */
 	public function get($name = null, array $options = [])
 	{
-		// if (array_key_exists($name, $this->menus)) {
-		// 	$name = $this->menus[$name];
-		// }
+		// We have an override or named menu here
+		if (array_key_exists($name, $this->menus)) {
+			return $this->container->resolve($this->menus[$name]);
+		}
 
 		return $this->container->multiton('menu', $name);
 	}
@@ -59,5 +60,20 @@ class FuelProvider implements MenuProviderInterface
 	{
 		// return DiC::isInstance('menu', $name, false);
 		return true;
+	}
+
+	/**
+	 * Adds a menu to the provider
+	 *
+	 * @param string $menu
+	 * @param string $identifier
+	 *
+	 * @return self
+	 */
+	public function addMenu($menu, $identifier)
+	{
+		$this->menus[$menu] = $identifier;
+
+		return $this;
 	}
 }
